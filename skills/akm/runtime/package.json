@@ -1,0 +1,25 @@
+{
+  "name": "akm-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local agentic knowledge management with pi and Obsidian",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "bin": {
+    "akm": "./bin/akm.js"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "benchmark": "node bin/akm.js benchmark --dataset benchmarks/retrieve-v1.json --output benchmarks/results/current.json --baseline benchmarks/baselines/retrieve-v1.json",
+    "benchmark:record": "node bin/akm.js benchmark --dataset benchmarks/retrieve-v1.json --output benchmarks/baselines/retrieve-v1.json",
+    "demo": "node scripts/demo.js",
+    "validate:live": "node scripts/live-validation.js"
+  },
+  "dependencies": {
+    "@earendil-works/pi-ai": "1.1.0",
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "yaml": "2.9.0"
+  }
+}

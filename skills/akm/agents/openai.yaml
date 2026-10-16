@@ -1,0 +1,6 @@
+interface:
+  display_name: "AKM 本地知识库"
+  short_description: "用 Obsidian 管理并检索本地知识"
+  default_prompt: "使用 $akm 处理本地知识库中的归档或检索任务。"
+policy:
+  allow_implicit_invocation: true

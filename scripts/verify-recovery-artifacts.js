@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import crypto from 'node:crypto';
+import readline from 'node:readline/promises';
+const out=path.resolve('artifacts/recovery-validation-2026-10-15');
+const input=readline.createInterface({input:process.stdin});
+const key=(await input.question('')).trim();input.close();
+if(!key)throw new Error('Credential required for redaction scan');
+const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);
+const files=walk(out),leaks=files.filter(f=>fs.readFileSync(f).includes(Buffer.from(key))).map(f=>path.relative(out,f));
+const live=path.join(os.homedir(),'.akm');
+const before=JSON.parse(fs.readFileSync(path.join(out,'production-before.json')));
+const after=walk(path.join(live,'vaults')).sort().map(f=>[path.relative(live,f),fs.statSync(f).size,fs.statSync(f).mtimeMs]);
+const result={checkedFiles:files.length,credentialLeaks:leaks,productionVaultsUnchanged:JSON.stringify(before)===JSON.stringify(after),productionFileCount:after.length,finalProductionHashes:after.map(([f])=>[f,crypto.createHash('sha256').update(fs.readFileSync(path.join(live,f))).digest('hex')])};
+fs.writeFileSync(path.join(out,'integrity-check.json'),JSON.stringify(result,null,2));
+console.log(JSON.stringify({checkedFiles:result.checkedFiles,credentialLeaks:leaks.length,productionVaultsUnchanged:result.productionVaultsUnchanged,productionFileCount:result.productionFileCount}));
+if(leaks.length||!result.productionVaultsUnchanged)process.exitCode=1;
